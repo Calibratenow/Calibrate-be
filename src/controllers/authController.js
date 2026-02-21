@@ -35,19 +35,22 @@ class AuthController {
       await tokenService.storeRefreshToken(user.id, refreshToken);
 
       // Set tokens as httpOnly cookies
-      res.cookie('accessToken', accessToken, {
+      // sameSite: 'none' required for cross-site (dashboard.calibratenow.io ↔ backend.calibratenow.io)
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000 // 15 minutes
-      });
+      };
+      res.cookie('accessToken', accessToken, cookieOptions);
 
-      res.cookie('refreshToken', refreshToken, {
+      const refreshCookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+      };
+      res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
       // Return success response without tokens (they're in cookies)
       return ResponseHandler.success(
@@ -82,19 +85,21 @@ class AuthController {
       await tokenService.storeRefreshToken(user.id, refreshToken);
 
       // Set tokens as httpOnly cookies
-      res.cookie('accessToken', accessToken, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000 // 15 minutes
-      });
+      };
+      res.cookie('accessToken', accessToken, cookieOptions);
 
-      res.cookie('refreshToken', refreshToken, {
+      const refreshCookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+      };
+      res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
       // Return success response without tokens (they're in cookies)
       return ResponseHandler.success(
@@ -148,19 +153,21 @@ class AuthController {
       await tokenService.storeRefreshToken(user.id, refreshToken);
 
       // Set tokens as httpOnly cookies
-      res.cookie('accessToken', accessToken, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000 // 15 minutes
-      });
+      };
+      res.cookie('accessToken', accessToken, cookieOptions);
 
-      res.cookie('refreshToken', refreshToken, {
+      const refreshCookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+      };
+      res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
       // Return success response without tokens (they're in cookies)
       return ResponseHandler.success(
@@ -208,19 +215,21 @@ class AuthController {
       const newRefreshToken = await tokenService.rotateRefreshToken(refreshToken, user.id);
 
       // Set new tokens as httpOnly cookies
-      res.cookie('accessToken', accessToken, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000 // 15 minutes
-      });
+      };
+      res.cookie('accessToken', accessToken, cookieOptions);
 
-      res.cookie('refreshToken', newRefreshToken, {
+      const refreshCookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
+      };
+      res.cookie('refreshToken', newRefreshToken, refreshCookieOptions);
 
       // Return user info without tokens (they're in cookies)
       return ResponseHandler.success(
@@ -249,9 +258,12 @@ class AuthController {
         await tokenService.revokeRefreshToken(refreshToken);
       }
 
-      // Clear both cookies
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
+      // Clear both cookies (must match options used when setting for cross-site)
+      const clearOptions = process.env.NODE_ENV === 'production'
+        ? { secure: true, sameSite: 'none' }
+        : {};
+      res.clearCookie('accessToken', clearOptions);
+      res.clearCookie('refreshToken', clearOptions);
 
       return ResponseHandler.success(
         res,
@@ -260,8 +272,11 @@ class AuthController {
       );
     } catch (error) {
       // Even if token revocation fails, clear cookies and return success
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
+      const clearOptions = process.env.NODE_ENV === 'production'
+        ? { secure: true, sameSite: 'none' }
+        : {};
+      res.clearCookie('accessToken', clearOptions);
+      res.clearCookie('refreshToken', clearOptions);
       return ResponseHandler.success(
         res,
         null,

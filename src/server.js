@@ -51,11 +51,16 @@ const PORT = process.env.PORT || 5000;
 // Middleware Configuration
 // ====================
 
+// Trust proxy - required for cookies when behind proxy (Nginx, AWS ELB, etc.)
+app.set('trust proxy', 1);
+
 // CORS configuration
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://dashboard.calibratenow.io',
   'http://localhost:8080', // Vite dev server
   'http://localhost:5173', // Alternative port
+  'http://localhost:3000',
 ];
 
 const corsOptions = {
