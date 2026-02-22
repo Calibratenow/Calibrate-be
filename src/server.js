@@ -186,7 +186,7 @@ app.use((err, req, res, next) => {
 // Start Server
 // ====================
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log('\n' + '='.repeat(50));
   console.log('🚀 CalibrateNow Backend Server');
   console.log('='.repeat(50));
