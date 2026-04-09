@@ -69,6 +69,7 @@ export const collections = {
   users: 'users',
   refreshTokens: 'refresh_tokens',
   aiConversations: 'ai_conversations',
+  chatSessions: 'chat_sessions',
 };
 
 // Helper to get timestamp
